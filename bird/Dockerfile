@@ -1,9 +1,7 @@
 MAINTAINER Allen Zhong <pdev@zhoal.pw>
-LABEL Description="Bird Internet routing daemon docker image" Vendor="Hoshi Network"
+LABEL org.opencontainers.image.source=https://github.com/HoshiNet/containers
 
-ENV BIRD_VER 2.15.1
-
-FROM alpine:3 AS builder
+FROM alpine:${ALPINE_VER} AS builder
 
 RUN apk add --no-cache \
             bison \
@@ -34,7 +32,7 @@ RUN set -ex; \
         make && \
         make DESTDIR=/build/bird install
 
-FROM busybox:musl AS target
+FROM busybox:${BUSYBOX_VER}-musl AS target
 COPY --from=builder /build/bird /
 COPY --from=builder /lib/ld-musl-x86_64.so* /lib/
 COPY --from=builder /usr/lib/libreadline.so* /usr/lib/

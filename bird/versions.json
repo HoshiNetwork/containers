@@ -1,0 +1,5 @@
+{
+  "image_version": "2.15.1",
+  "alpine_version": "3.19.1",
+  "busybox_version": "1.36.1"
+}
