@@ -1,5 +1,4 @@
-name: Build & Push BIRD2
-
+name: Build & Push
 on:
   workflow_dispatch:
 
@@ -22,15 +21,24 @@ jobs:
       - name: Set Versions
         id: set_ver
         run: |
-          echo IMAGE_VER=`jq .image_version ${{matrix.image}}/versions.json` >> $GITHUB_OUTPUT
-          echo ALPINE_VER=`jq .alpine_version ${{matrix.image}}/versions.json` >> $GITHUB_OUTPUT
-          echo BUSYBOX_ENV=`jq .busybox_version ${{matrix.image}}/versions.json` >> $GITHUB_OUTPUT
-          echo COMMIT_TS=`TZ=UTC git show -s --format=%cd --date=format-local:'%y%m%d%H%M'` >> $GITHUB_OUTPUT
+          IMAGE_VER=`jq -r .package_version ${{matrix.image}}/versions.json`
+          echo IMAGE_VER=$IMAGE_VER >> $GITHUB_OUTPUT
+          ALPINE_VER=`jq -r .alpine_version ${{matrix.image}}/versions.json`
+          echo ALPINE_VER=$ALPINE_VER >> $GITHUB_OUTPUT
+          BUSYBOX_VER=`jq -r .busybox_version ${{matrix.image}}/versions.json`
+          echo BUSYBOX_VER=$BUSYBOX_VER >> $GITHUB_OUTPUT
+
+          COMMIT_TS=`TZ=UTC git show -s --format=%cd --date=format-local:'%y%m%d%H%M'`
+          echo COMMIT_TS=$COMMIT_TS >> $GITHUB_OUTPUT
 
       - name: Build image
         run: |
           cd ${{matrix.image}}
-          docker build --file Dockerfile --tag ${{matrix.image}} --label "runnumber=${GITHUB_RUN_ID}"
+          docker build . --file Dockerfile --tag ${{matrix.image}} \
+            --label "runnumber=${GITHUB_RUN_ID}" \
+            --build-arg="pkgver=${{steps.set_ver.outputs.IMAGE_VER}}" \
+            --build-arg="alpinever=${{steps.set_ver.outputs.ALPINE_VER}}" \
+            --build-arg="busyboxver=${{steps.set_ver.outputs.BUSYBOX_VER}}"
 
       - name: Log in to registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
@@ -42,7 +50,7 @@ jobs:
           # This changes all uppercase characters to lowercase.
           IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
           echo IMAGE_ID=$IMAGE_ID
-          echo VERSION=${{steps.outputs.set_ver.IMAGE_VER}}-${{steps.outputs.set_ver.COMMIT_TS}}
+          echo VERSION=${{steps.set_ver.outputs.IMAGE_VER}}-${{steps.set_ver.outputs.COMMIT_TS}}
           docker tag ${{matrix.image}} $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:$VERSION
 
