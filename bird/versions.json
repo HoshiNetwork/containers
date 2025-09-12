@@ -1,5 +1,5 @@
 {
-  "package_version": "3.0.1",
-  "alpine_version": "3.21",
+  "package_version": "3.0.4",
+  "alpine_version": "3.22",
   "busybox_version": "1.37"
 }
