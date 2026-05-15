@@ -16,7 +16,7 @@ jobs:
         image:
           - "bird"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Set Versions
         id: set_ver

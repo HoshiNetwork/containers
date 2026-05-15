@@ -6,6 +6,7 @@ FROM alpine:${alpinever} AS builder
 ARG pkgver
 
 RUN apk add --no-cache \
+            autoconf \
             bison \
             curl \
             flex \
@@ -19,11 +20,12 @@ RUN apk add --no-cache \
 
 WORKDIR /root
 RUN set -ex; \
-        tarball="https://bird.network.cz/download/bird-${pkgver}.tar.gz"; \
+        tarball="https://gitlab.nic.cz/labs/bird/-/archive/v${pkgver}/bird-v${pkgver}.tar.gz"; \
         curl -fL -o bird.tar.gz $tarball; \
         mkdir -p /build/bird /src/bird; \
         tar -zxf bird.tar.gz -C /src/; \
-        rm bird.tar.gz; cd /src/bird-${pkgver}; \
+        rm bird.tar.gz; cd /src/bird-v${pkgver}; \
+        autoreconf -fiv; \
         ./configure \
             --prefix=/usr \
             --sbindir=/usr/bin \
