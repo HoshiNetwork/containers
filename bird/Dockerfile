@@ -42,7 +42,8 @@ MAINTAINER Allen Zhong <pdev@zhoal.pw>
 LABEL org.opencontainers.image.source=https://github.com/HoshiNet/containers
 
 COPY --from=builder /build/bird /
-COPY --from=builder /lib/ld-musl-x86_64.so* /lib/
+# The loader is named after the architecture (ld-musl-x86_64, ld-musl-aarch64).
+COPY --from=builder /lib/ld-musl-*.so* /lib/
 COPY --from=builder /usr/lib/libreadline.so* /usr/lib/
 COPY --from=builder /usr/lib/libncursesw.so* /usr/lib/
 
