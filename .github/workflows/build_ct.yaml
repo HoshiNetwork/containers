@@ -52,6 +52,7 @@ jobs:
           cd ${{matrix.image}}
           docker buildx build . --file Dockerfile --push \
             --platform linux/amd64,linux/arm64 \
+            --provenance=false \
             --label "runnumber=${GITHUB_RUN_ID}" \
             --build-arg="pkgver=${{steps.set_ver.outputs.IMAGE_VER}}" \
             --build-arg="alpinever=${{steps.set_ver.outputs.ALPINE_VER}}" \
